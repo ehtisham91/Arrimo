@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -18,10 +18,19 @@ import { getInitials } from "../utils/get-initials";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-
-export const UserTable = ({ customers }) => {
+import { DeleteForeverOutlined } from "@mui/icons-material";
+import { deleteUserReq, getAllUsersReq } from "../components/request/requests";
+import apiClient from "../components/request/apiClient";
+import { useSnackbar } from "notistack";
+import { useNavigate } from "react-router";
+export const UserTable = () => {
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [limit, setLimit] = useState(10);
+  const [loading, setLoading] = useState(false);
+
   const [page, setPage] = useState(0);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -30,6 +39,10 @@ export const UserTable = ({ customers }) => {
   };
   const handleClose = () => {
     setAnchorEl(null);
+  };
+  const handleDeleteOneUser = (_id) => {
+    setAnchorEl(null);
+    deleteOneUser(_id);
   };
   const handleSelectAll = (event) => {
     let newSelectedCustomerIds;
@@ -77,13 +90,77 @@ export const UserTable = ({ customers }) => {
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
   };
-
+  const deleteOneUser = async (_id) => {
+    try {
+      const req = deleteUserReq(_id);
+      const response = await apiClient(
+        req.url,
+        req.method,
+        req.data,
+        req.headers
+      );
+      if (!response?.data?.success) {
+        enqueueSnackbar("Something went wrong during deleting user", {
+          variant: "error",
+        });
+      } else {
+        getAllUsers();
+      }
+    } catch (err) {
+      console.log("err", err);
+      enqueueSnackbar("Something went wrong during deleting user", {
+        variant: "error",
+      });
+    }
+  };
+  const getAllUsers = async () => {
+    try {
+      setLoading(true);
+      const req = getAllUsersReq();
+      const response = await apiClient(
+        req.url,
+        req.method,
+        req.data,
+        req.headers
+      );
+      if (!response?.data?.success) {
+        enqueueSnackbar("Something went wrong during getting events data", {
+          variant: "error",
+        });
+      } else {
+        setCustomers(response?.data?.msg);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.log("err", err);
+      enqueueSnackbar("Something went wrong during getting events data", {
+        variant: "error",
+      });
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    getAllUsers();
+  }, []);
   return (
     <>
-      <Card sx={{ position: "relative" }}>
-        {/* <Box sx={{ position: "absolute", top: "-20px" }}>
-          <Button variant="outlined">Bdeley</Button>
-        </Box> */}
+      {!!selectedCustomerIds?.length && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "74px",
+            right: "23px",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Typography>Delete {selectedCustomerIds?.length} item(s)</Typography>
+          <IconButton>
+            <DeleteForeverOutlined sx={{ color: "red" }} />
+          </IconButton>
+        </Box>
+      )}
+      <Card sx={{ marginTop: "20px", position: "relative" }}>
         <Box sx={{ minWidth: 1050 }}>
           <Table>
             <TableHead>
@@ -99,79 +176,111 @@ export const UserTable = ({ customers }) => {
                     onChange={handleSelectAll}
                   />
                 </TableCell>
-                <TableCell>First Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Address</TableCell>
-                <TableCell>Actions</TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+                  Name
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+                  Email
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+                  Phone
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+                  Address
+                </TableCell>
+                <TableCell sx={{ fontWeight: "bold", fontSize: "16px" }}>
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {customers.slice(0, limit).map((customer) => (
-                <TableRow
-                  hover
-                  key={customer.id}
-                  selected={selectedCustomerIds.indexOf(customer.id) !== -1}
-                >
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedCustomerIds.indexOf(customer.id) !== -1}
-                      onChange={(event) => handleSelectOne(event, customer.id)}
-                      value="true"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box
-                      sx={{
-                        alignItems: "center",
-                        display: "flex",
-                      }}
+              {!loading ? (
+                !!customers?.length ? (
+                  customers.slice(0, limit).map((customer) => (
+                    <TableRow
+                      hover
+                      key={customer.id}
+                      selected={selectedCustomerIds.indexOf(customer.id) !== -1}
                     >
-                      <Avatar src={customer.avatarUrl} sx={{ mr: 2 }}>
-                        {getInitials(customer.name)}
-                      </Avatar>
-                      <Typography color="textPrimary" variant="body1">
-                        {customer.name}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>{customer.email}</TableCell>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={
+                            selectedCustomerIds.indexOf(customer.id) !== -1
+                          }
+                          onChange={(event) =>
+                            handleSelectOne(event, customer.id)
+                          }
+                          value="true"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Box
+                          sx={{
+                            alignItems: "center",
+                            display: "flex",
+                          }}
+                        >
+                          <Avatar src={customer.avatarUrl} sx={{ mr: 2 }}>
+                            {getInitials(customer.name)}
+                          </Avatar>
+                          <Typography color="textPrimary" variant="body1">
+                            {customer.name}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>{customer.email}</TableCell>
 
-                  <TableCell>{customer.phone}</TableCell>
-                  <TableCell>
-                    {new Date(customer.createdAt).toISOString()}
-                  </TableCell>
-                  <TableCell>
-                    <IconButton onClick={handleClick}>
-                      <MoreVertIcon />
-                    </IconButton>
-                    <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={open}
-                      onClose={handleClose}
-                      MenuListProps={{
-                        "aria-labelledby": "basic-button",
-                      }}
-                    >
-                      <MenuItem onClick={handleClose}>Edit</MenuItem>
-                      <MenuItem onClick={handleClose}>Delete</MenuItem>
-                    </Menu>
+                      <TableCell>{customer.phone}</TableCell>
+                      <TableCell>{customer.address}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={handleClick}>
+                          <MoreVertIcon />
+                        </IconButton>
+                        <Menu
+                          id="basic-menu"
+                          anchorEl={anchorEl}
+                          open={open}
+                          onClose={handleClose}
+                          MenuListProps={{
+                            "aria-labelledby": "basic-button",
+                          }}
+                        >
+                          <MenuItem
+                            onClick={() => {
+                              navigate(`/user/${customer._id}`);
+                              handleClose();
+                            }}
+                          >
+                            Edit
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              handleDeleteOneUser(customer._id);
+                            }}
+                          >
+                            Delete
+                          </MenuItem>
+                        </Menu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={12} sx={{ textAlign: "center" }}>
+                      No Data
+                    </TableCell>
+                  </TableRow>
+                )
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={12} sx={{ textAlign: "center" }}>
+                    Loading...
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </Box>
-        <TablePagination
-          component="div"
-          count={customers.length}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleLimitChange}
-          page={page}
-          rowsPerPage={limit}
-          rowsPerPageOptions={[5, 10, 25]}
-        />
       </Card>
     </>
   );

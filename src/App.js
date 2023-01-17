@@ -1,31 +1,17 @@
 import "./App.css";
 import Home from "./pages/Home";
-import { Route, Routes } from "react-router-dom";
 import Dashboard from "./components/Dashboard";
 import { UserTable } from "./pages/UserTable";
 import { customers } from "./__mock_data/customers";
+import routes from "./routes";
+import { SnackbarProvider } from "notistack";
 function App() {
   return (
-    <Routes>
-      <Route
-        exact
-        path="/"
-        element={
-          <Dashboard>
-            <Home />
-          </Dashboard>
-        }
-      />
-      <Route
-        exact
-        path="/list-view"
-        element={
-          <Dashboard>
-            <UserTable customers={customers} />
-          </Dashboard>
-        }
-      />
-    </Routes>
+    <>
+      <SnackbarProvider dense maxSnack={3}>
+        {routes()}
+      </SnackbarProvider>
+    </>
   );
 }
 

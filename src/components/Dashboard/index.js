@@ -13,14 +13,15 @@ import Grid from "@mui/material/Grid";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { mainListItems } from "./listItems";
+import { MainListItems } from "./listItems";
 import { AppBar } from "./AppBar";
 import { Drawer } from "./Drawer";
 import Copyright from "./CopyRight";
+import { Button } from "@mui/material";
 
 const mdTheme = createTheme();
 
-function DashboardContent({ children }) {
+function DashboardContent({ children, screen }) {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
@@ -55,7 +56,7 @@ function DashboardContent({ children }) {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              {screen}
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -78,7 +79,7 @@ function DashboardContent({ children }) {
             </IconButton>
           </Toolbar>
           <Divider />
-          <List component="nav">{mainListItems}</List>
+          <List component="nav">{MainListItems()}</List>
         </Drawer>
         <Box
           component="main"
@@ -97,7 +98,6 @@ function DashboardContent({ children }) {
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 {children}
-                {/* <Home /> */}
               </Grid>
             </Grid>
             <Copyright sx={{ pt: 4 }} />
