@@ -1,7 +1,7 @@
 import "./App.css";
 import Home from "./pages/Home";
 import { Route, Routes } from "react-router-dom";
-import Dashboard from "./components/dashboard";
+import Dashboard from "./components/Dashboard";
 import { UserTable } from "./pages/UserTable";
 import { customers } from "./__mock_data/customers";
 function App() {
