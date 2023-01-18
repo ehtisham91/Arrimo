@@ -14,7 +14,7 @@ export const ListItems = () => {
     <React.Fragment>
       <ListItemButton
         onClick={() => {
-          navigate("/users-list");
+          navigate("/users");
         }}
         sx={{ backgroundColor: pathName?.includes("users") ? "lightgray" : "" }}
       >
