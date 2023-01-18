@@ -2,31 +2,35 @@ import * as React from "react";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useNavigate } from "react-router-dom";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import GroupIcon from "@mui/icons-material/Group";
 
-export const MainListItems = () => {
+export const ListItems = () => {
+  const pathName = window.location.pathname;
+  console.log(pathName);
   const navigate = useNavigate();
   return (
     <React.Fragment>
       <ListItemButton
         onClick={() => {
-          navigate("/list-view");
+          navigate("/users-list");
         }}
+        sx={{ backgroundColor: pathName?.includes("users") ? "grey" : "" }}
       >
         <ListItemIcon>
-          <DashboardIcon />
+          <GroupIcon />
         </ListItemIcon>
         <ListItemText primary="Users" />
       </ListItemButton>
       <ListItemButton
+        sx={{ backgroundColor: pathName?.includes("events") ? "grey" : "" }}
         onClick={() => {
-          navigate("/events");
+          navigate("/events-list");
         }}
       >
         <ListItemIcon>
-          <ShoppingCartIcon />
+          <CalendarMonthIcon />
         </ListItemIcon>
         <ListItemText primary="Events" />
       </ListItemButton>

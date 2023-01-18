@@ -1,4 +1,4 @@
-import { getLocalStorage } from "../Common/utils";
+import { getLocalStorage } from "../../utils";
 
 const headers = {
   "Content-Type": "application/json",
@@ -65,9 +65,11 @@ export const getSingleUserReq = (uuid) => {
     {}
   );
 };
+
 export const createUserReq = (data) => {
   return createReqObject("/users/", "POST", authenticatedRequestHeaders, data);
 };
+
 export const deleteUserReq = (uuid) => {
   return createReqObject(
     `/users/${uuid}`,
@@ -76,6 +78,7 @@ export const deleteUserReq = (uuid) => {
     {}
   );
 };
+
 export const updateUserReq = (uuid, data) => {
   return createReqObject(
     `/users/${uuid}`,

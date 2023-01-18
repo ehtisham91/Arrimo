@@ -1,21 +1,23 @@
 import FullCalendar from "@fullcalendar/react";
-import { Box, Paper, TextField } from "@mui/material";
+import { Box, Button, Paper, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interaction from "@fullcalendar/interaction";
-import Alert from "../components/Common/Alert/Alert";
-import TimePicker from "../components/Common/timePicker/TimePicker";
+import Alert from "../components/Common/Alert";
+import TimePicker from "../components/Common/TimePicker";
 import {
   createEventReq,
   getAllEventsReq,
   updateEventReq,
-} from "../components/request/requests";
+} from "../components/Requests";
 import { useSnackbar } from "notistack";
-import apiClient from "../components/request/apiClient";
+import apiClient from "../components/Requests/apiClient";
+import { useNavigate } from "react-router";
+
 const Calendar = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [eventList, setEventList] = useState([]);
-
+  const navigate = useNavigate();
   const [event, setEvent] = useState({
     id: "",
     title: "",
@@ -25,6 +27,7 @@ const Calendar = () => {
     address: "",
     date: "",
   });
+
   const [showAlert, setShowAlert] = useState({ bool: false, date: "" });
 
   const handleAlertClose = () => {
@@ -75,7 +78,6 @@ const Calendar = () => {
     });
     setShowAlert({ bool: true, date: "" });
   };
-  console.log("eventslist", eventList);
 
   const createNewEvent = async (data) => {
     try {
@@ -126,16 +128,6 @@ const Calendar = () => {
   };
 
   const handleClickSave = () => {
-    // let unformatedDateList = new Date(event?.time)
-    //   ?.toLocaleString()
-    //   ?.split(",")[0]
-    //   ?.split("/");
-    // let date = `${unformatedDateList[2]}-${unformatedDateList[1]}-${unformatedDateList[0]}`;
-    // let obj = {
-    //   ...event,
-    //   date: date,
-    // };
-
     if (event?.id) {
       updateEvent(event?._id, event);
       handleUpdateEvent(event?._id, event);
@@ -169,13 +161,41 @@ const Calendar = () => {
       });
     }
   };
+
   useEffect(() => {
     getAllEvents();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      <Paper sx={{ padding: "20px 30px", heigth: "700px" }}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "74px",
+          right: "23px",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          variant="outlined"
+          onClick={() => {
+            navigate("/events");
+          }}
+        >
+          Grid View
+        </Button>
+        <Button
+          sx={{ marginLeft: "8px" }}
+          variant="outlined"
+          onClick={() => {
+            navigate("/events-list");
+          }}
+        >
+          List View
+        </Button>
+      </Box>
+      <Paper sx={{ padding: "20px 30px", marginTop: "24px", heigth: "700px" }}>
         <FullCalendar
           height="700px"
           events={eventList}

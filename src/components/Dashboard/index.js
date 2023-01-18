@@ -7,25 +7,26 @@ import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import { MainListItems } from "./listItems";
+import { ListItems } from "./ListItems";
 import { AppBar } from "./AppBar";
 import { Drawer } from "./Drawer";
-import Copyright from "./CopyRight";
-import { Button } from "@mui/material";
+import logo from "../../images/Logo.png";
+import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
+import { setLocalStorage } from "../../utils";
+import { useNavigate } from "react-router";
 
 const mdTheme = createTheme();
 
-function DashboardContent({ children, screen }) {
+function DashboardContent({ children, screenLabel }) {
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const navigate = useNavigate();
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -34,7 +35,7 @@ function DashboardContent({ children, screen }) {
         <AppBar position="absolute" open={open}>
           <Toolbar
             sx={{
-              pr: "24px", // keep right padding when drawer closed
+              pr: "24px",
             }}
           >
             <IconButton
@@ -56,30 +57,45 @@ function DashboardContent({ children, screen }) {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              {screen}
+              {screenLabel}
             </Typography>
-            <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
+            <Typography>Admin</Typography>
+            <IconButton
+              onClick={() => {
+                setLocalStorage("token", "");
+                navigate("/login");
+              }}
+              color="inherit"
+            >
+              <PowerSettingsNewIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
-          <Toolbar
+          <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-end",
-              px: [1],
+              justifyContent: "center",
             }}
           >
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeftIcon />
-            </IconButton>
-          </Toolbar>
+            <img alt="logo" src={logo} height="38px" width="160px" />
+            <Toolbar
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                px: [1],
+                marginRight: "-10px",
+              }}
+            >
+              <IconButton onClick={toggleDrawer}>
+                <ChevronLeftIcon />
+              </IconButton>
+            </Toolbar>
+          </Box>
           <Divider />
-          <List component="nav">{MainListItems()}</List>
+          <List component="nav">{ListItems()}</List>
         </Drawer>
         <Box
           component="main"
@@ -100,7 +116,6 @@ function DashboardContent({ children, screen }) {
                 {children}
               </Grid>
             </Grid>
-            <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
       </Box>
@@ -108,6 +123,6 @@ function DashboardContent({ children, screen }) {
   );
 }
 
-export default function Dashboard({ children }) {
-  return <DashboardContent children={children} />;
+export default function Dashboard({ children, screenLabel }) {
+  return <DashboardContent screenLabel={screenLabel} children={children} />;
 }

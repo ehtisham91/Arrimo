@@ -1,20 +1,20 @@
-import { Button, Grid, TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
-import apiClient from "../components/request/apiClient";
+import apiClient from "../components/Requests/apiClient";
 import {
   createUserReq,
   updateUserReq,
   getSingleUserReq,
-} from "../components/request/requests";
+} from "../components/Requests";
 import { useSnackbar } from "notistack";
 import { useNavigate, useParams } from "react-router";
 
-const Home = () => {
+const CreateEditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const [imageLocal, setImageLocal] = useState("");
+  const [imageLocal] = useState("");
   const [userInfo, setUserInfo] = useState({
     firstname: "",
     lastname: "",
@@ -62,9 +62,10 @@ const Home = () => {
         phone: "",
         address: "",
       });
-      navigate("/list-view");
+      navigate("/users-list");
     }
   };
+
   const getSingleUser = async () => {
     try {
       const req = getSingleUserReq(id);
@@ -101,11 +102,12 @@ const Home = () => {
     if (id) {
       getSingleUser();
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onHandleChange = (key, value) => {
     setUserInfo({ ...userInfo, [key]: value });
   };
+
   return (
     <Box id="main-box">
       <Box sx={{ width: "100%" }}>
@@ -130,17 +132,17 @@ const Home = () => {
             cursor: "pointer",
           }}
         >
-          <input
-            id="hidden_input"
+          {/* <input
+            // id="hidden_input"
             accept="image/*"
             onChange={(e) => {
               // let urlForImage = UrlEndcoded
               console.log("data for image", e.target.files[0]);
               setImageLocal(e.target.files[0]);
             }}
-            type="file"
+            // type="file"
             style={{ display: "none" }}
-          />
+          /> */}
         </Box>
       </Box>
       <Box
@@ -234,4 +236,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default CreateEditUser;

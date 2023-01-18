@@ -1,11 +1,12 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../App.css";
 import { useSnackbar } from "notistack";
-import apiClient from "../components/request/apiClient";
-import { loginReq } from "../components/request/requests";
-import { setLocalStorage } from "../components/Common/utils";
+import apiClient from "../components/Requests/apiClient";
+import { loginReq } from "../components/Requests";
+import { getLocalStorage, setLocalStorage } from "../utils";
 import { useNavigate } from "react-router";
+
 const Login = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [userCred, setUserCred] = useState({ email: "", password: "" });
@@ -37,9 +38,16 @@ const Login = () => {
       });
     } finally {
       setUserCred({ email: "", password: "" });
-      navigate("/list-view");
+      navigate("/users-list");
     }
   };
+
+  useEffect(() => {
+    if (getLocalStorage("token")) {
+      navigate("/users-list");
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <Box
       display="flex"

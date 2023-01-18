@@ -10,7 +10,6 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
@@ -19,47 +18,46 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { DeleteForeverOutlined } from "@mui/icons-material";
-import { deleteUserReq, getAllUsersReq } from "../components/request/requests";
-import apiClient from "../components/request/apiClient";
+import { deleteUserReq, getAllUsersReq } from "../components/Requests";
+import apiClient from "../components/Requests/apiClient";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router";
+
 export const UserTable = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [selectedCustomerIds, setSelectedCustomerIds] = useState([]);
   const [customers, setCustomers] = useState([]);
-  const [limit, setLimit] = useState(10);
   const [loading, setLoading] = useState(false);
-
-  const [page, setPage] = useState(0);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleDeleteOneUser = (_id) => {
     setAnchorEl(null);
     deleteOneUser(_id);
   };
+
   const handleSelectAll = (event) => {
     let newSelectedCustomerIds;
-
     if (event.target.checked) {
-      newSelectedCustomerIds = customers.map((customer) => customer.id);
+      newSelectedCustomerIds = customers.map((customer) => customer._id);
     } else {
       newSelectedCustomerIds = [];
     }
-
     setSelectedCustomerIds(newSelectedCustomerIds);
   };
 
   const handleSelectOne = (event, id) => {
     const selectedIndex = selectedCustomerIds.indexOf(id);
     let newSelectedCustomerIds = [];
-
     if (selectedIndex === -1) {
       newSelectedCustomerIds = newSelectedCustomerIds.concat(
         selectedCustomerIds,
@@ -79,17 +77,25 @@ export const UserTable = () => {
         selectedCustomerIds.slice(selectedIndex + 1)
       );
     }
-
     setSelectedCustomerIds(newSelectedCustomerIds);
   };
 
-  const handleLimitChange = (event) => {
-    setLimit(event.target.value);
+  const deleteSelectedUsers = async () => {
+    try {
+      selectedCustomerIds?.forEach((custId) => {
+        const req = deleteUserReq(custId);
+        apiClient(req.url, req.method, req.data, req.headers);
+      });
+    } catch (err) {
+      console.log("err", err);
+      enqueueSnackbar("Something went wrong during deleting users", {
+        variant: "error",
+      });
+    } finally {
+      getAllUsers();
+    }
   };
 
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
   const deleteOneUser = async (_id) => {
     try {
       const req = deleteUserReq(_id);
@@ -113,6 +119,7 @@ export const UserTable = () => {
       });
     }
   };
+
   const getAllUsers = async () => {
     try {
       setLoading(true);
@@ -139,27 +146,47 @@ export const UserTable = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     getAllUsers();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
-      {!!selectedCustomerIds?.length && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "74px",
-            right: "23px",
-            display: "flex",
-            alignItems: "center",
+      <Box
+        sx={{
+          position: "absolute",
+          top: "74px",
+          right: "23px",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {!!selectedCustomerIds?.length && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Typography>
+              Delete {selectedCustomerIds?.length} item(s)
+            </Typography>
+            <IconButton onClick={deleteSelectedUsers}>
+              <DeleteForeverOutlined sx={{ color: "red" }} />
+            </IconButton>
+          </Box>
+        )}
+        <Button
+          variant="outlined"
+          onClick={() => {
+            navigate("/user");
           }}
+          sx={{ marginLeft: "8px" }}
         >
-          <Typography>Delete {selectedCustomerIds?.length} item(s)</Typography>
-          <IconButton>
-            <DeleteForeverOutlined sx={{ color: "red" }} />
-          </IconButton>
-        </Box>
-      )}
+          Create User
+        </Button>
+      </Box>
       <Card sx={{ marginTop: "20px", position: "relative" }}>
         <Box sx={{ minWidth: 1050 }}>
           <Table>
@@ -196,19 +223,21 @@ export const UserTable = () => {
             <TableBody>
               {!loading ? (
                 !!customers?.length ? (
-                  customers.slice(0, limit).map((customer) => (
+                  customers?.map((customer) => (
                     <TableRow
                       hover
                       key={customer.id}
-                      selected={selectedCustomerIds.indexOf(customer.id) !== -1}
+                      selected={
+                        selectedCustomerIds.indexOf(customer._id) !== -1
+                      }
                     >
                       <TableCell padding="checkbox">
                         <Checkbox
                           checked={
-                            selectedCustomerIds.indexOf(customer.id) !== -1
+                            selectedCustomerIds.indexOf(customer._id) !== -1
                           }
                           onChange={(event) =>
-                            handleSelectOne(event, customer.id)
+                            handleSelectOne(event, customer._id)
                           }
                           value="true"
                         />

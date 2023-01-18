@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Avatar,
   Box,
   Button,
   Card,
@@ -14,41 +13,47 @@ import {
   Typography,
 } from "@mui/material";
 import { DeleteForeverOutlined } from "@mui/icons-material";
-import { getAllEventsReq } from "../components/request/requests";
-import apiClient from "../components/request/apiClient";
+import { deleteEventReq, getAllEventsReq } from "../components/Requests";
+import apiClient from "../components/Requests/apiClient";
 import { useSnackbar } from "notistack";
+import { useNavigate } from "react-router";
 
 export const EventTable = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [events, setEvents] = useState([]);
   const [selectedEventIds, setSelectedEventIds] = useState([]);
-  const [limit, setLimit] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const navigate = useNavigate();
+
   const handleSelectAll = (event) => {
     let newSelectedEventIds;
-
     if (event.target.checked) {
-      newSelectedEventIds = events.map((customer) => customer.id);
+      newSelectedEventIds = events.map((_event) => _event._id);
     } else {
       newSelectedEventIds = [];
     }
-
     setSelectedEventIds(newSelectedEventIds);
+  };
+
+  const deleteSelectedEvents = async () => {
+    try {
+      selectedEventIds?.forEach((eveId) => {
+        const req = deleteEventReq(eveId);
+        apiClient(req.url, req.method, req.data, req.headers);
+      });
+    } catch (err) {
+      console.log("err", err);
+      enqueueSnackbar("Something went wrong during deleting events", {
+        variant: "error",
+      });
+    } finally {
+      getAllEvents();
+    }
   };
 
   const handleSelectOne = (event, id) => {
     const selectedIndex = selectedEventIds.indexOf(id);
     let newSelectedEventIds = [];
-
     if (selectedIndex === -1) {
       newSelectedEventIds = newSelectedEventIds.concat(selectedEventIds, id);
     } else if (selectedIndex === 0) {
@@ -65,17 +70,9 @@ export const EventTable = () => {
         selectedEventIds.slice(selectedIndex + 1)
       );
     }
-
     setSelectedEventIds(newSelectedEventIds);
   };
 
-  const handleLimitChange = (event) => {
-    setLimit(event.target.value);
-  };
-
-  const handlePageChange = (event, newPage) => {
-    setPage(newPage);
-  };
   const getAllEvents = async () => {
     try {
       setLoading(true);
@@ -102,27 +99,55 @@ export const EventTable = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     getAllEvents();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
-      {!!selectedEventIds?.length && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "74px",
-            right: "23px",
-            display: "flex",
-            alignItems: "center",
+      <Box
+        sx={{
+          position: "absolute",
+          top: "74px",
+          right: "23px",
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {!!selectedEventIds?.length && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+            }}
+            onClick={deleteSelectedEvents}
+          >
+            <Typography>Delete {selectedEventIds?.length} item(s)</Typography>
+            <IconButton>
+              <DeleteForeverOutlined sx={{ color: "red" }} />
+            </IconButton>
+          </Box>
+        )}
+        <Button
+          variant="outlined"
+          onClick={() => {
+            navigate("/events");
+          }}
+          sx={{ marginLeft: "8px" }}
+        >
+          Grid View
+        </Button>
+        <Button
+          sx={{ marginLeft: "8px" }}
+          variant="outlined"
+          onClick={() => {
+            navigate("/events-list");
           }}
         >
-          <Typography>Delete {selectedEventIds?.length} item(s)</Typography>
-          <IconButton>
-            <DeleteForeverOutlined sx={{ color: "red" }} />
-          </IconButton>
-        </Box>
-      )}
+          List View
+        </Button>
+      </Box>
       <Card sx={{ marginTop: "20px", position: "relative" }}>
         <Box sx={{ minWidth: 1050 }}>
           <Table>
@@ -159,7 +184,7 @@ export const EventTable = () => {
             <TableBody>
               {!loading ? (
                 !!events?.length ? (
-                  events.slice(0, limit).map((_event) => (
+                  events?.map((_event) => (
                     <TableRow
                       hover
                       key={_event.id}
@@ -169,7 +194,7 @@ export const EventTable = () => {
                         <Checkbox
                           checked={selectedEventIds.indexOf(_event.id) !== -1}
                           onChange={(event) =>
-                            handleSelectOne(event, _event.id)
+                            handleSelectOne(event, _event._id)
                           }
                           value="true"
                         />
