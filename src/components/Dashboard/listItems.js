@@ -16,7 +16,7 @@ export const ListItems = () => {
         onClick={() => {
           navigate("/users-list");
         }}
-        sx={{ backgroundColor: pathName?.includes("users") ? "grey" : "" }}
+        sx={{ backgroundColor: pathName?.includes("users") ? "lightgray" : "" }}
       >
         <ListItemIcon>
           <GroupIcon />
@@ -24,9 +24,11 @@ export const ListItems = () => {
         <ListItemText primary="Users" />
       </ListItemButton>
       <ListItemButton
-        sx={{ backgroundColor: pathName?.includes("events") ? "grey" : "" }}
+        sx={{
+          backgroundColor: pathName?.includes("events") ? "lightgray" : "",
+        }}
         onClick={() => {
-          navigate("/events-list");
+          navigate("/events");
         }}
       >
         <ListItemIcon>

@@ -10,10 +10,14 @@ export default function TimePickerComp({
   label,
   style,
   value: incommingValue,
-  date = "2023-01-17",
+  date,
 }) {
   const [value, setValue] = React.useState(
-    dayjs(date || incommingValue || "2023-01-17")
+    dayjs(
+      (date && `${date}T00:00:00.000Z`) ||
+        incommingValue ||
+        "2023-01-17T00:00:00.000Z"
+    )
   );
 
   return (

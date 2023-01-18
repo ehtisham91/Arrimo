@@ -13,6 +13,7 @@ import {
 import { useSnackbar } from "notistack";
 import apiClient from "../components/Requests/apiClient";
 import { useNavigate } from "react-router";
+import dayjs from "dayjs";
 
 const Calendar = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -44,8 +45,15 @@ const Calendar = () => {
   };
 
   const handleDateClick = (arg) => {
-    setShowAlert({ bool: true, date: arg?.dateStr });
-    setEvent({ ...event, date: arg?.dateStr });
+    setShowAlert({
+      bool: true,
+      date: arg?.dateStr,
+    });
+    setEvent({
+      ...event,
+      date: arg?.dateStr,
+      time: `${arg?.dateStr}T00:00:00.000Z`,
+    });
   };
 
   const onHandleChange = (key, value) => {
@@ -69,7 +77,6 @@ const Calendar = () => {
       ?.split(",")[0]
       ?.split("/");
     let date = `${unformatedDateList[2]}-${unformatedDateList[1]}-${unformatedDateList[0]}`;
-
     setEvent({
       ...e.event.extendedProps,
       title: e.event.title,
@@ -128,7 +135,7 @@ const Calendar = () => {
   };
 
   const handleClickSave = () => {
-    if (event?.id) {
+    if (event?._id) {
       updateEvent(event?._id, event);
       handleUpdateEvent(event?._id, event);
     } else {
@@ -227,7 +234,7 @@ const Calendar = () => {
                 <TimePicker
                   date={showAlert?.date}
                   onTimeChange={onTimeChange}
-                  value={new Date(event?.time)}
+                  value={event?.time}
                   style={{ marginLeft: "8px" }}
                   label={"Event Time"}
                 />

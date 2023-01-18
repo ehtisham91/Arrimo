@@ -37,17 +37,22 @@ export const EventTable = () => {
 
   const deleteSelectedEvents = async () => {
     try {
-      selectedEventIds?.forEach((eveId) => {
+      let allPromises = [];
+      allPromises = selectedEventIds?.map((eveId) => {
         const req = deleteEventReq(eveId);
-        apiClient(req.url, req.method, req.data, req.headers);
+        return Promise.resolve(
+          apiClient(req.url, req.method, req.data, req.headers)
+        );
+      });
+      Promise.all(allPromises).then(() => {
+        setSelectedEventIds([]);
+        getAllEvents();
       });
     } catch (err) {
       console.log("err", err);
       enqueueSnackbar("Something went wrong during deleting events", {
         variant: "error",
       });
-    } finally {
-      getAllEvents();
     }
   };
 
@@ -188,11 +193,11 @@ export const EventTable = () => {
                     <TableRow
                       hover
                       key={_event.id}
-                      selected={selectedEventIds.indexOf(_event.id) !== -1}
+                      selected={selectedEventIds.indexOf(_event._id) !== -1}
                     >
                       <TableCell padding="checkbox">
                         <Checkbox
-                          checked={selectedEventIds.indexOf(_event.id) !== -1}
+                          checked={selectedEventIds.indexOf(_event._id) !== -1}
                           onChange={(event) =>
                             handleSelectOne(event, _event._id)
                           }

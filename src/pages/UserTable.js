@@ -82,20 +82,24 @@ export const UserTable = () => {
 
   const deleteSelectedUsers = async () => {
     try {
-      selectedCustomerIds?.forEach((custId) => {
+      let allPromises = [];
+      allPromises = selectedCustomerIds?.map((custId) => {
         const req = deleteUserReq(custId);
-        apiClient(req.url, req.method, req.data, req.headers);
+        return Promise.resolve(
+          apiClient(req.url, req.method, req.data, req.headers)
+        );
+      });
+      Promise.all(allPromises).then(() => {
+        setSelectedCustomerIds([]);
+        getAllUsers();
       });
     } catch (err) {
       console.log("err", err);
       enqueueSnackbar("Something went wrong during deleting users", {
         variant: "error",
       });
-    } finally {
-      getAllUsers();
     }
   };
-
   const deleteOneUser = async (_id) => {
     try {
       const req = deleteUserReq(_id);
