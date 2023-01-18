@@ -36,6 +36,12 @@ const routes = () => {
 
 const routeData = [
   {
+    path: "",
+    exact: true,
+    element: <UserTable />,
+    screenLabel: "Users List",
+  },
+  {
     path: "/user",
     exact: true,
     element: <CreateEditUser />,
@@ -48,10 +54,10 @@ const routeData = [
     screenLabel: "Update User",
   },
   {
-    path: "/users-list",
+    path: "/users",
     exact: true,
     element: <UserTable />,
-    screenLabel: "Users Table",
+    screenLabel: "Users List",
   },
   {
     path: "/events",

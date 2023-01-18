@@ -38,13 +38,13 @@ const Login = () => {
       });
     } finally {
       setUserCred({ email: "", password: "" });
-      navigate("/users-list");
+      navigate("/users");
     }
   };
 
   useEffect(() => {
     if (getLocalStorage("token")) {
-      navigate("/users-list");
+      navigate("/users");
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

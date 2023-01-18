@@ -62,7 +62,7 @@ const CreateEditUser = () => {
         phone: "",
         address: "",
       });
-      navigate("/users-list");
+      navigate("/users");
     }
   };
 
